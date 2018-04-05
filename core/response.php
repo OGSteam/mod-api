@@ -111,11 +111,10 @@ class response
         }
         else
         {
-            $seconds_to_cache = 3600;
             $ts = gmdate("D, d M Y H:i:s", time() + $this->cacheControl) . " GMT";
             header("Expires: $ts");
             header("Pragma: cache");
-            header("Cache-Control: max-age=$seconds_to_cache");
+            header("Cache-Control: max-age=$this->cacheControl");
         }
 
 
