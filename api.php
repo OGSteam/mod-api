@@ -20,25 +20,33 @@ require_once("mod/api/core/webApi.php");
 require_once("mod/api/model/User_Model.php");
 require_once("mod/api/model/Tokens_Model.php");
 require_once("includes/token.php");
-
 //fin include
 
-
-var_dump($pub_user);
-var_dump($pub_pass);
-
-
-
-$web_api = new webApi();
-$web_api->authenticate_by_user($pub_user,$pub_pass);
+$api = new webApi();
+//pas de webservice si pas de ssl
+if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on" )
+{
+    $api->nosecure();
+}
 
 
+if (isset($pub_login) && isset($pub_password)) {
+    $api->authenticate_by_user($pub_login, $pub_password);
+} elseif (isset($pub_token) && isset($pub_data)) {
+    if ($api->authenticate_by_token($pub_token) === true) {
+        //$api->api_treat_command($pub_data);
+        var_dump($api);
+    }
+}
+
+//die();
 
 
-//$u=new  Ogsteam\Ogspy\Model\User_Model();
-//var_dump($u->select_user_login($pub_user, $pub_pass));
+//$web_api = new webApi();
+//$web_api->authenticate_by_user($pub_user,$pub_pass);
 
 
-?>
-test
+
+
+
 

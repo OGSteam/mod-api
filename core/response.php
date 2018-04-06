@@ -6,10 +6,11 @@
  * Time: 18:36
  */
 if (!defined('IN_SPYOGAME')) die("Hacking attempt");
+
 class response
 {
     private $code = 200;
-    private $contentType ="json";
+    private $contentType = "json";
     private $cacheControl = 0;
     private $charset = "UTF-8";
 
@@ -26,10 +27,10 @@ class response
      * @param string $type format d'echange de donnée
      * @param int $cache temps en seconde de mise en cache par defaut 0
      */
-    function __construct($type = 'json' , $cache = 0)
+    function __construct($type = "json", $cache = 0)
     {
         $this->setContentType($type);
-        $this->setContentType($cache);
+        $this->setCache($cache);
 
     }
 
@@ -39,11 +40,10 @@ class response
     public function setContentType($type)
     {
         $possibleValue = array('json');
-        if(!in_array($type,$possibleValue) )
-        {
-            $type = $possibleValue[0];
+        if (!in_array($type, $possibleValue)) {
+           $type = $possibleValue[0];
         }
-        $this->contentType=$type;
+        $this->contentType = $type;
 
     }
 
@@ -62,12 +62,10 @@ class response
      */
     public function setCode($code)
     {
-              if(!array_key_exists($code ,$this->codeAutorize ))
-        {
-            $this->code=500;
-        }
-        else{
-            $this->code=$code;
+        if (!array_key_exists($code, $this->codeAutorize)) {
+            $this->code = 500;
+        } else {
+            $this->code = $code;
         }
     }
 
@@ -79,7 +77,7 @@ class response
 
         $cache = (int)$cache;
         $this->cacheControl = $cache;
-           }
+    }
 
 
     /**
@@ -94,38 +92,27 @@ class response
         //coderetour
         http_response_code($this->code);
         header('Status: '.$this->codeAutorize[$this->code]);
-        if ($this->code> 299)
-        {
-            die(); // fin
-
-        }
-
-        //type
         header("Content-type: application/".$this->contentType."; charset=".$this->charset);
         //temps de cache si necessaire
-        if ($cache=0)
-        {
-            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-            header("Cache-Control: post-check=0, pre-check=0", false);
+        if ($cache = 0) {
+             header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+             header("Cache-Control: post-check=0, pre-check=0", false);
             header("Pragma: no-cache");
-        }
-        else
-        {
+        } else {
             $ts = gmdate("D, d M Y H:i:s", time() + $this->cacheControl) . " GMT";
             header("Expires: $ts");
             header("Pragma: cache");
             header("Cache-Control: max-age=$this->cacheControl");
         }
 
+        if ($this->code > 299) {
+            die(); // fin
+        }
 
         echo $data;
 
         die();
     }
-
-
-
-
 
 
 }
