@@ -5,7 +5,9 @@
  * Date: 04/04/2018
  * Time: 06:46
  */
+
 if (!defined('IN_SPYOGAME')) die("Hacking attempt");
+
 class webApi
 {
     private $device = "unknow";
@@ -57,6 +59,15 @@ class webApi
         $response->sendResponse(json_encode(array('status' => 'unsecure')));
     }
 
+    //debug
+    //retour le json passé en argument
+    public function customData($data)
+    {
+        $response = new response();
+        $response->sendResponse($data);
+
+    }
+
 
     /**
      * @param $token
@@ -75,6 +86,50 @@ class webApi
             $response->sendResponse(json_encode($feedback));
         }
         return false;
+    }
+
+
+    /**
+     * Entry point for API commands
+     * This function will call the required and private function to get the requested data
+     * @param $data
+     */
+    public function api_treat_command($data) {
+        $data_decoded = json_decode($data, true);
+        switch ($data_decoded['cmd']) {
+            case "ogspy_server_details" :
+                $this->api_send_ogspy_server_details();
+                break;
+            case "ogspy_ally_details" :
+                $this->api_send_ogspy_ally_details();
+                break;
+            case "ogspy_user_details" :
+                $this->api_send_ogspy_player_details();
+                break;
+            case "ogspy_rank_by_date" :
+                $this->api_send_ogspy_rank_by_date($data_decoded['type'], $data_decoded['higher_rank'], $data_decoded['lower_rank']);
+            case "ogspy_rank_all" :
+                $this->api_send_ogspy_all_rank($data_decoded['type']);
+            default:
+                break;
+        }
+        //Cas envoyer liste paramètres utilisateurs.
+        //$this->api_send_user_list();
+    }
+
+
+
+    /**
+     * Fonction test envoi de données
+     */
+    private function api_send_ogspy_server_details() {
+        if ($this->authenticated_token != null) {
+            $data_config = new Ogsteam\Ogspy\Model\Config_Model();
+            $data_config = $data_config->find_by(array("servername", "register_alliance", "allied", "url_forum"));
+            $data = array('status' => 'ok', 'content' =>$data_config);
+            $response = new response();
+            $response->sendResponse(json_encode($data));
+        }
     }
 
 
