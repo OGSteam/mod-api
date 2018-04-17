@@ -110,6 +110,8 @@ class webApi
                 $this->api_send_ogspy_rank_by_date($data_decoded['type'], $data_decoded['higher_rank'], $data_decoded['lower_rank']);
             case "ogspy_rank_all" :
                 $this->api_send_ogspy_all_rank($data_decoded['type']);
+            case "api_send_ogspy_spy" :
+                $this->api_send_ogspy_spy($data_decoded['since']);
             default:
                 break;
         }
@@ -131,6 +133,25 @@ class webApi
             $response->sendResponse(json_encode($data));
         }
     }
+    /**
+     * Fonction test envoi de données
+     */
+    private function api_send_ogspy_spy($since) {
+        if ($this->authenticated_token != null) {
+            $spy = new Ogsteam\Ogspy\Model\Spy_Model();
+            //formatage date
+           $date = new DateTime($since);
+            $tSpy = $spy->get_SpySince($date->getTimestamp());
+            $data = array('status' => 'ok', 'content' =>$tSpy);
+            $response = new response();
+            $response->sendResponse(json_encode($data));
+        }
+
+
+
+
+    }
+
 
 
 

@@ -28,7 +28,10 @@ require_once("mod/api/core/webApi.php");
 require_once("mod/api/model/User_Model.php");
 require_once("mod/api/model/Tokens_Model.php");
 require_once("mod/api/model/Config_Model.php");
+require_once("mod/api/model/Spy_Model.php");
 require_once("includes/token.php");
+
+//si pas de demande : heure
 
 
 
@@ -44,9 +47,12 @@ if (isset($pub_login) && isset($pub_password)) {
     $api->authenticate_by_user($pub_login, $pub_password);
 } elseif (isset($pub_token) && isset($pub_data)) {
     if ($api->authenticate_by_token($pub_token) === true) {
+        //var_dump(json_decode($pub_data));die();
         $api->api_treat_command($pub_data);
     }
 }
+
+
 
 //si pas de demande : heure
 $api = new webApi();
