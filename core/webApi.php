@@ -112,6 +112,8 @@ class webApi
                 $this->api_send_ogspy_all_rank($data_decoded['type']);
             case "api_send_ogspy_spy" :
                 $this->api_send_ogspy_spy($data_decoded['since']);
+            case "api_send_ogspy_galaxy" :
+                $this->api_send_ogspy_galaxy($data_decoded['galaxy']);
             default:
                 break;
         }
@@ -136,21 +138,35 @@ class webApi
     /**
      * Fonction test envoi de données
      */
-    private function api_send_ogspy_spy($since) {
+    private function api_send_ogspy_spy($since)
+    {
         if ($this->authenticated_token != null) {
             $spy = new Ogsteam\Ogspy\Model\Spy_Model();
             //formatage date
-           $date = new DateTime($since);
+            $date = new DateTime($since);
             $tSpy = $spy->get_SpySince($date->getTimestamp());
-            $data = array('status' => 'ok', 'content' =>$tSpy);
+            $data = array('status' => 'ok', 'content' => $tSpy);
             $response = new response();
             $response->sendResponse(json_encode($data));
         }
 
-
-
-
     }
+        /**
+         * Fonction test envoi de données
+         */
+        private function api_send_ogspy_galaxy($galaxy) {
+            if ($this->authenticated_token != null) {
+                $uni = new Ogsteam\Ogspy\Model\Universe_Model();
+                $tUni = $uni->get_galaxy_occupation((int)$galaxy);
+                $data = array('status' => 'ok', 'content' =>$tUni);
+                $response = new response();
+                $response->sendResponse(json_encode($data));
+            }
+
+
+
+
+        }
 
 
 
