@@ -24,7 +24,7 @@ class webApi
      */
     public function authenticate_by_user($login, $password)
     {
-        global $db;
+        global $db,$pub_sender;
         $data_user =  new  Ogsteam\Ogspy\Model\User_Model();
         $result = $data_user->select_user_login($login, $password);
         if (list($user_id, $user_active) = $db->sql_fetch_row($result)) {
@@ -33,11 +33,15 @@ class webApi
                 $t= new token();
                 $generated_token = $t->getToken($this->expireTime,"webapi_".$user_id,false);
                 $data_token = new Ogsteam\Ogspy\Model\Tokens_Model();
-                $deviceType = "android";
-                $private_token = $data_token->add_token($generated_token, $user_id, time() + $this->expireTime, $deviceType);
+                if(!is_null($pub_sender))
+                {
+                    $this->device= $pub_sender;
+                }
+
+                $private_token = $data_token->add_token($generated_token, $user_id, time() + $this->expireTime, $this->device);
                 $this->authenticated_token = $private_token;
                 $this->user_id_token = $user_id;
-                $this->device= $deviceType;
+
                 $response = new response();
                 $response->sendResponse(json_encode(array('status' => 'ok', 'api_token' => $private_token)));
                 die();
