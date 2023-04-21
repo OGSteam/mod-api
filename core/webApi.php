@@ -1,178 +1,72 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: machine
  * Date: 04/04/2018
  * Time: 06:46
  */
+if (!defined('IN_SPYOGAME'))
+    die("Hacking attempt");
 
-if (!defined('IN_SPYOGAME')) die("Hacking attempt");
+class webApi {
 
-class webApi
-{
-    private $device = "unknow";
-    private $authenticated_token = false;
-    private $user_id_token = false;
-    private $expireTime = 3600;
+    // retourne la liste exhaustife des demandes possibles
+    public static function getDefinition() {
+        $def = array();
+        $help = array();
+        $help["description"] = "Liste les possibilités de l'api";
+        $help["arguments"] = array(); // preparation arguments
+        $def["help"] = $help; //ressource player   
+        // Ressource joueur(s)
+        //arguments possibles
+        $players = array();
+        $players["descriptions"] = "Retourne la liste des joueurs";
+        $players["arguments"] = array(); // preparation arguments
+        $players["arguments"]["player"] = array('cast' => "string", 'required' => false, 'min' => 0, 'max' => 10, 'description' => "Nom du joueur recherché"); // argument 
+        $def["players"] = $players; //ressource player   
 
+        return $def;
+    }
 
-    /**
-     * @param $login
-     * @param $password
-     *
-     * Todo check ip ?
-     */
-    public function authenticate_by_user($login, $password)
-    {
-        global $db,$pub_sender;
-        $data_user =  new  Ogsteam\Ogspy\Model\User_Model();
-        $result = $data_user->select_user_login($login, $password);
-        if (list($user_id, $user_active) = $db->sql_fetch_row($result)) {
-            if ($user_active == 1) {
-                //generation du token
-                $t= new token();
-                $generated_token = $t->getToken($this->expireTime,"webapi_".$user_id,false);
-                $data_token = new Ogsteam\Ogspy\Model\Tokens_Model();
-                if(!is_null($pub_sender))
-                {
-                    $this->device= $pub_sender;
+    public function call($fnName, $params = array()) {
+        // mis en conformité des parametres
+        $tmpParams = array();
+        $def = self::getDefinition();
+
+        foreach ($params as $keyParam => $valueParam) {
+            // verifiaction presence du parametre demandé
+            if (isset($def[$fnName]["arguments"][$keyParam])) {
+                // cast et clamp
+                $min = $def[$fnName]["arguments"][$keyParam]["min"];
+                $max = $def[$fnName]["arguments"][$keyParam]["max"];
+                $cast = $def[$fnName]["arguments"][$keyParam]["cast"];
+                if (!is_null(utils::cast($cast, $valueParam))) {
+                    $tmpParams[$keyParam] = utils::cast($cast, $valueParam);
+                    $tmpParams[$keyParam] = utils::clamp($cast, $tmpParams[$keyParam], $min, $max);
                 }
-
-                $private_token = $data_token->add_token($generated_token, $user_id, time() + $this->expireTime, $this->device);
-                $this->authenticated_token = $private_token;
-                $this->user_id_token = $user_id;
-
-                $response = new response();
-                $response->sendResponse(json_encode(array('status' => 'ok', 'api_token' => $private_token)));
-                die();
-            } else {
-                $response = new response();
-                $response->setCode(401);
-                $response->sendResponse();
-
             }
-            //On ne retourne rien pour masquer API
-        }
-        exit();
-    }
-
-
-    public function nosecure()
-    {
-        $response = new response();
-        $response->sendResponse(json_encode(array('status' => 'unsecure')));
-    }
-
-    //debug
-    //retour le json passé en argument
-    public function customData($data)
-    {
-        $response = new response();
-        $response->sendResponse($data);
-
-    }
-
-
-    /**
-     * @param $token
-     * @return bool
-     */
-    public function authenticate_by_token($token) {
-        $data_token = new Ogsteam\Ogspy\Model\Tokens_Model();
-        $user_id = $data_token->get_userid_from_token($token);
-        if ($user_id !== false) {
-            $this->authenticated_token = $token;
-            $this->user_id_token = $user_id;
-            return true;
-        } else {
-            $feedback = array('status' => 'error_auth');
-            $response = new response();
-            $response->sendResponse(json_encode($feedback));
-        }
-        return false;
-    }
-
-
-    /**
-     * Entry point for API commands
-     * This function will call the required and private function to get the requested data
-     * @param $data
-     */
-    public function api_treat_command($data) {
-        $data_decoded = json_decode($data, true);
-        switch ($data_decoded['cmd']) {
-            case "ogspy_server_details" :
-                $this->api_send_ogspy_server_details();
-                break;
-            case "ogspy_ally_details" :
-                $this->api_send_ogspy_ally_details();
-                break;
-            case "ogspy_user_details" :
-                $this->api_send_ogspy_player_details();
-                break;
-            case "ogspy_rank_by_date" :
-                $this->api_send_ogspy_rank_by_date($data_decoded['type'], $data_decoded['higher_rank'], $data_decoded['lower_rank']);
-            case "ogspy_rank_all" :
-                $this->api_send_ogspy_all_rank($data_decoded['type']);
-            case "api_send_ogspy_spy" :
-                $this->api_send_ogspy_spy($data_decoded['since']);
-            case "api_send_ogspy_galaxy" :
-                $this->api_send_ogspy_galaxy($data_decoded['galaxy']);
-            default:
-                break;
-        }
-        //Cas envoyer liste paramètres utilisateurs.
-        //$this->api_send_user_list();
-    }
-
-
-
-    /**
-     * Fonction test envoi de données
-     */
-    private function api_send_ogspy_server_details() {
-        if ($this->authenticated_token != null) {
-            $data_config = new Ogsteam\Ogspy\Model\Config_Model();
-            $data_config = $data_config->find_by(array("servername", "register_alliance", "allied", "url_forum"));
-            $data = array('status' => 'ok', 'content' =>$data_config);
-            $response = new response();
-            $response->sendResponse(json_encode($data));
-        }
-    }
-    /**
-     * Fonction test envoi de données
-     */
-    private function api_send_ogspy_spy($since)
-    {
-        if ($this->authenticated_token != null) {
-            $spy = new Ogsteam\Ogspy\Model\Spy_Model();
-            //formatage date
-            $date = new DateTime($since);
-            $tSpy = $spy->get_SpySince($date->getTimestamp());
-            $data = array('status' => 'ok', 'content' => $tSpy);
-            $response = new response();
-            $response->sendResponse(json_encode($data));
         }
 
-    }
-        /**
-         * Fonction test envoi de données
-         */
-        private function api_send_ogspy_galaxy($galaxy) {
-            if ($this->authenticated_token != null) {
-                $uni = new Ogsteam\Ogspy\Model\Universe_Model();
-                $tUni = $uni->get_galaxy_occupation((int)$galaxy);
-                $data = array('status' => 'ok', 'content' =>$tUni);
-                $response = new response();
-                $response->sendResponse(json_encode($data));
-            }
-
-
-
-
+        // on peut appeler la fonction 
+        try {
+            $retour = $this->$fnName($tmpParams);
+            return $retour;
+        } catch (Exception $e)
+        {
+            return null;
         }
+    }
 
 
+    private function players($params) {
+        $players = new player();
+        return $players->getAllPlayers($params);
+    }
 
+    //retourne les definitions   
+    private function help() {
+        return self::getDefinition();
+    }
 
 }

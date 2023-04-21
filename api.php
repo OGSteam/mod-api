@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: machine
@@ -6,75 +7,67 @@
  * Time: 06:46
  *
  */
-
 define('IN_SPYOGAME', true);
 date_default_timezone_set(date_default_timezone_get());
 
 //positionnement au niveau de lindex opour les include (cf xtense implementation)
-if (preg_match('#mod#', getcwd())) chdir('../../');
+if (preg_match('#mod#', getcwd()))
+    chdir('../../');
 $_SERVER['SCRIPT_FILENAME'] = str_replace(basename(__FILE__), 'index.php', preg_replace('#\/mod\/(.*)\/#', '/', $_SERVER['SCRIPT_FILENAME']));
 include("common.php");
 
-//todo
-//verifier serveur actif
-//verifier mod actif
-// mise en place de droit/user ???
-
-
-
+//TODO serveur / mod actif
+//TODO mise en place de droit/user ???
+//
+//TODO  token ?
 //include
 require_once("mod/api/core/response.php");
+require_once("mod/api/core/request.php");
 require_once("mod/api/core/webApi.php");
-require_once("mod/api/model/User_Model.php");
-require_once("mod/api/model/Tokens_Model.php");
-require_once("mod/api/model/Config_Model.php");
-require_once("mod/api/model/Spy_Model.php");
-require_once("mod/api/model/Universe_Model.php");
-// attention en version 3.3.2 n 'existe pas encore
-if (file_exists("includes/token.php")) {
-    require_once("includes/token.php");
-} else {
-    require_once("mod/api/core/token.php");
+
+require_once("mod/api/util/utils.php");
+
+require_once("mod/api/model/player.php");
+
+$request = new request();
+$response = new response();
+$webapi = new webApi();
+
+// si non secure exit
+if (!$request->isSecure()) {
+    $response::Unsecure();
+}
+$def = webApi::getDefinition();
+
+// verification de lexistence de la ressource 
+if (!isset($def[$request->getRessource()])) {
+    $response::BadRequest();
+    exit();
 }
 
 
-//si pas de demande : heure
 
-
-
-$api = new webApi();
-//pas de webservice si pas de ssl
-if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on" )
-{
-    $api->nosecure();
-}
-
-
-if (isset($pub_login) && isset($pub_password)) {
-    $api->authenticate_by_user($pub_login, $pub_password);
-} elseif (isset($pub_token) && isset($pub_data)) {
-    if ($api->authenticate_by_token($pub_token) === true) {
-        //var_dump(json_decode($pub_data));die();
-        $api->api_treat_command($pub_data);
+//verification de la presence de param obligatoire
+if (isset($def[$request->getRessource()]["arguments"])) {
+    foreach ($def[$request->getRessource()]["arguments"] as $key => $value) {
+        if ((bool) $value["required"]) {
+            // si l'info est demandé, on regarde si elle est en param
+            if (!isset($request->getArgs()[$key])) {
+                response::InternalError();
+                exit();
+            }
+        }
     }
 }
 
 
-
-//si pas de demande : heure
-$api = new webApi();
-$api->customData(json_encode(array('status' => 'ok', 'time' => time())));
-
-
-
-//die();
+$retour = $webapi->call($request->getRessource(), $request->getParams());
+if ($retour == false) {
+    $response::BadRequest();
+} else {
+    response::sendResponse($retour);
+}
 
 
-//$web_api = new webApi();
-//$web_api->authenticate_by_user($pub_user,$pub_pass);
-
-
-
-
-
-
+response::InternalError();
+exit();
