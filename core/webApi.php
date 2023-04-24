@@ -24,6 +24,7 @@ class webApi {
         $players["descriptions"] = "Retourne la liste des joueurs";
         $players["arguments"] = array(); // preparation arguments
         $players["arguments"]["player"] = array('cast' => "string", 'required' => false, 'min' => 0, 'max' => 10, 'description' => "Nom du joueur recherché"); // argument 
+        $players["arguments"]["status"] = array('cast' => "string", 'required' => false, 'min' => 0, 'max' => 3, 'description' => "Status du joueur recherché"); // argument 
         $def["players"] = $players; //ressource player   
 
         return $def;
