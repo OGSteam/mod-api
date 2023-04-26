@@ -1,68 +1,42 @@
 <?php
+
 if (!defined('IN_SPYOGAME'))
     die("Hacking attempt"); // Pas d'accès direct
 require_once("views/page_header.php");
 
 require_once("mod/api/core/webApi.php");
-$def = webApi::getDefinition();
-?>
 
+include "mod/api/views/css.php";
+//include "mod/api/views/menu.php";
+//include "mod/api/views/definition.php";
+if (!isset($pub_subaction)) {
+    $pub_subaction = "index";
+}
 
-<h2>Liste des appels</h2>
+$menu_active_index = "";
+$menu_active_reglage = "";
+$menu_active_definition = "";
 
-<table>
+switch ($pub_subaction) {
+    case "index":
+        $menu_active_index = "active";
+        include "mod/api/views/menu.php";
+        include "mod/api/views/index.php";
+        break;
+    case "definition":
+        $menu_active_definition = "active";
+        include "mod/api/views/menu.php";
+        include "mod/api/views/definition.php";
+        break;
+    case "reglage":
+        $menu_active_reglage = "active";
+        include "mod/api/views/menu.php";
+        break;
+    default :
+        $menu_active_index = "active";
+        include "mod/api/views/menu.php";
+        include "mod/api/views/index.php";
+        break;
+}
 
-    <tbody>
-        <?php foreach ($def as $ressource => $definitions) : ?>
-            <tr> 
-                <td class="c" colspan="7"><?php echo $ressource; ?></td>
-            </tr>
-            <?php if (isset($definitions["description"])) : ?>
-                <tr>
-                    <td colspan="7"><?php echo $definitions["description"]; ?></td>
-                </tr>
-            <?php endif; ?>
-
-            <?php if (isset($definitions["arguments"]) && count($definitions["arguments"]) > 0) : ?>
-                <tr>
-                    <td></td>
-                    <th>Argument</th>
-                    <th>cast</th>
-                    <th>required</th>
-                    <th>min</th>
-                    <th>max</th>
-                    <th>description</th>
-                </tr>
-
-                <?php foreach ($definitions["arguments"] as $key => $value) : ?>
-                    <tr>
-                        <td> </td>
-                        <td><?php echo $key; ?> </td>
-                        <td><?php echo $value["cast"]; ?> </td>
-                        <td><?php echo $value["required"] ? 'Oui' : 'Non';  ?> </td>
-                        <td><?php echo $value["min"]; ?> </td>
-                        <td><?php echo $value["max"]; ?> </td>
-                        <td><?php echo $value["description"]; ?> </td>.
-                    </tr> 
-                <?php endforeach; ?>
-
-            <?php endif; ?>
-
-        <?php endforeach; ?>
-
-
-
-
-    </tbody>
-
-
-</table>        
-
-
-
-
-
-
-
-<?php
 require_once("views/page_tail.php");
