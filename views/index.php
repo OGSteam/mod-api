@@ -5,4 +5,7 @@ if (!defined('IN_SPYOGAME'))
 
     <h2>Mod API</h2>
     <p>Permet d'accéder à des elements stockés sur le serveur ogspy via des appels externes.</p>
-        
+    <hr/>
+
+    
+    

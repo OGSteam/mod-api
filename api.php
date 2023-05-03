@@ -25,6 +25,8 @@ require_once("mod/api/core/response.php");
 require_once("mod/api/core/request.php");
 require_once("mod/api/core/webApi.php");
 
+require_once("mod/api/model/token.php");
+
 require_once("mod/api/util/utils.php");
 
 require_once("mod/api/model/player.php");

@@ -4,7 +4,7 @@ if (!defined('IN_SPYOGAME')) {
     die("Hacking attempt");
 }
 
-class player {
+class modapi_players {
 
     private function getAllPlayersResult($params) {
         global $db;

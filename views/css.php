@@ -47,4 +47,8 @@ if (!defined('IN_SPYOGAME'))
         color: #fff;
     }
 
+    
+    table .modapi{
+        background-color: rgba(0,0,0,0.8);
+    }
 </style>

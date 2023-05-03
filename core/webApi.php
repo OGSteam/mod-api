@@ -21,7 +21,7 @@ class webApi {
         // Ressource joueur(s)
         //arguments possibles
         $players = array();
-        $players["descriptions"] = "Retourne la liste des joueurs";
+        $players["description"] = "Retourne la liste des joueurs";
         $players["arguments"] = array(); // preparation arguments
         $players["arguments"]["player"] = array('cast' => "string", 'required' => false, 'min' => 0, 'max' => 10, 'description' => "Nom du joueur recherché"); // argument 
         $players["arguments"]["status"] = array('cast' => "string", 'required' => false, 'min' => 0, 'max' => 3, 'description' => "Status du joueur recherché"); // argument 
@@ -61,7 +61,7 @@ class webApi {
 
 
     private function players($params) {
-        $players = new player();
+        $players = new modapi_players();
         return $players->getAllPlayers($params);
     }
 
