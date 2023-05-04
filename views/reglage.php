@@ -1,6 +1,9 @@
-<h2><?php
+<?php
     if (!defined('IN_SPYOGAME'))
         die("Hacking attempt"); // Pas d'accès direct
+    
+    
+    die("Page inactive")
     ?>
 
     <h2>Conf<h2>
