@@ -15,16 +15,8 @@ $security = false;
 $mod_folder = "api";
 $security = install_mod($mod_folder);
 if ($security == true) {
-    global $db;
-
-    $sql = " CREATE TABLE If NOT EXISTS ogspy_tokens ( ";
-    $sql .= " token_id varchar(64) NOT NULL , ";
-    $sql .= " token_user_id INT NOT NULL DEFAULT '0',  ";
-    $sql .= " token_expire INT NOT NULL DEFAULT '0',  ";
-    $sql .= " token_type varchar(32) NOT NULL  DEFAULT '0', ";
-    $sql .= " UNIQUE KEY  (token_id,token_user_id) ) ;";
-
-    $db->sql_query($sql);
+    // utilisation de la table ogspy_user_tokens native en 3.3.7
+    
 
 
 
