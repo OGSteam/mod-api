@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Created by PhpStorm.
- * User: machine
- * Date: 04/04/2018
- * Time: 06:46
- *
- */
+ * @package [Mod] modapi
+ * @author Machine
+ * @copyright Copyright &copy; 2016, https://ogsteam.eu/
+ * @license https://opensource.org/licenses/gpl-license.php GNU Public License
+ */ 
+
 define('IN_SPYOGAME', true);
 date_default_timezone_set(date_default_timezone_get());
 
